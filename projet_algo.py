@@ -10,12 +10,15 @@ nombre_noeud_tier3 = 70
 nombre_noeud_total = nombre_noeud_tier1 + nombre_noeud_tier2 + nombre_noeud_tier3
 
 class Reseau:
+    '''
+    Classe qui 
+    '''
     def __init__(self):
         self.noeuds = self.creer_reseau()
         self.table_routage = self.calculer_table_routage()
 
     def creer_reseau(self):
-        # Création des nœuds
+        # Création des noeuds
         noeuds = [{'tier': 1, 'connections': []} for _ in range(nombre_noeud_tier1)]
         noeuds += [{'tier': 2, 'connections': []} for _ in range(nombre_noeud_tier2)]
         noeuds += [{'tier': 3, 'connections': []} for _ in range(nombre_noeud_tier3)]
@@ -56,29 +59,29 @@ class Reseau:
 
         return noeuds
 
-    def bfs(self, noeud_depart):
+    def parcours_largeur(self, noeud_depart):
         """
-        Parcours en largeur (BFS) pour vérifier si tous les nœuds sont accessibles
-        à partir du nœud de départ.
+        Parcours en largeur pour vérifier si tous les noeuds sont accessibles
+        à partir du noeud de départ.
         """
-        visite = set()
-        queue = [(noeud_depart, None)]  # (nœud, nœud parent)
+        visite = list()
+        file = [(noeud_depart, None)]  # (noeud, noeud parent)
 
-        while queue:
-            noeud, parent = queue.pop(0)
+        while file:
+            noeud, parent = file.pop(0)
             if noeud not in visite:
-                visite.add(noeud)
+                visite.append(noeud)
                 for voisin, poids in self.noeuds[noeud]['connections']:
-                    queue.append((voisin, noeud))
+                    file.append((voisin, noeud))
 
-        # Si tous les nœuds ont été visités, le réseau est connexe
+        # Si tous les noeuds ont été visités, le réseau est connexe et l'égalité ci-dessous est vrai
         return len(visite) == len(self.noeuds)
 
     def dijkstra(self, noeud_depart):
         
         """
         Algorithme de Dijkstra pour calculer les plus courts chemins
-        à partir d'un nœud source vers tous les autres nœuds.
+        à partir d'un noeud source vers tous les autres noeuds.
         """
         distances = {noeud: float('inf') for noeud in range(len(self.noeuds))}
         distances[noeud_depart] = 0
@@ -102,7 +105,7 @@ class Reseau:
 
     def calculer_table_routage(self):
         """
-        Calcule les tables de routage pour chaque nœud en utilisant l'algorithme de Dijkstra.
+        Calcule les tables de routage pour chaque noeud en utilisant l'algorithme de Dijkstra.
         """
         table_routage = [{} for _ in range(len(self.noeuds))]
 
@@ -117,7 +120,7 @@ class Reseau:
 
     def reconstruire_chemin(self, source, destination):
         """
-        Reconstitue le chemin entre deux nœuds en utilisant les tables de routage.
+        Reconstitue le chemin entre deux noeuds en utilisant les tables de routage.
         """
         chemin = [destination]
         noeud_actuelle = destination
@@ -171,9 +174,10 @@ class ReseauGraphique(Reseau):
                     break
                 else:
                     print("Noeud source non existant, entrez un noeud du graphe.")
+                    print()
             except ValueError:
                 print("Noeud source incorrect, entrez un entier.")
-
+                print()
         while True:
             try:
                 destination_noeud = int(input("Entrez le noeud de destination: "))
@@ -181,30 +185,42 @@ class ReseauGraphique(Reseau):
                     break
                 else:
                     print("Noeud de destination non existant, entrez un noeud du graphe.")
+                    print()
             except ValueError:
                 print("Noeud de destination incorrect, entrez un entier.")
+                print()
 
         return source_noeud, destination_noeud
 
 
 def main():
     reseau = Reseau()
-    connexe = reseau.bfs(0)
+    noeud_depart = 0
+    connexe = reseau.parcours_largeur(noeud_depart)
 
+    print()
     while not connexe:
         print("Le réseau n'est pas connexe. Création d'un nouveau réseau...")
         reseau = Reseau()
-        connexe = reseau.bfs(0)
-    print("Le reseaux est connexe, on peut l'afficher: ")  
+        connexe = reseau.parcours_largeur(noeud_depart)
+    
+    print("Le reseaux est connexe, on peut l'afficher: ")
+    print()  
     reseau_graphique = ReseauGraphique()
     reseau_graphique.afficher()
 
-    source_noeud, destination_noeud = reseau_graphique.selectionner_noeuds()
-
-   
-    chemin = reseau_graphique.reconstruire_chemin(source_noeud, destination_noeud)
-    print(f"Chemin de {source_noeud} à {destination_noeud} : {' -> '.join(map(str, chemin))}")
-    reseau_graphique.afficher(chemin)
+    while True:
+        source_noeud, destination_noeud = reseau_graphique.selectionner_noeuds()
+        chemin = reseau_graphique.reconstruire_chemin(source_noeud, destination_noeud)
+        print(f"Chemin de {source_noeud} à {destination_noeud} : {' -> '.join(map(str, chemin))}")
+        reseau_graphique.afficher(chemin)
+        print()
+        v = str(input("Voulez-vous observer le chemin entre 2 autres noeuds? (oui/non) "))
+        print()
+        if v == "oui":
+            continue
+        else:
+            break
     
 
 if __name__ == "__main__":
