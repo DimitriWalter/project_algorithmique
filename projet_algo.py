@@ -1,7 +1,6 @@
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
-import heapq
 
 # Définition des constantes
 nombre_noeud_tier1 = 10
@@ -89,7 +88,7 @@ class Reseau:
         prev = {noeud: None for noeud in range(len(self.noeuds))}
 
         while pq:
-            distance_actuelle, noeud_actuelle = heapq.heappop(pq)
+            distance_actuelle, noeud_actuelle = pq.pop(0)
 
             if distance_actuelle > distances[noeud_actuelle]:
                 continue
@@ -99,7 +98,7 @@ class Reseau:
                 if distance < distances[voisin]:
                     distances[voisin] = distance
                     prev[voisin] = noeud_actuelle
-                    heapq.heappush(pq, (distance, voisin))
+                    pq.append((distance, voisin))
 
         return prev, distances
 
@@ -194,26 +193,26 @@ class ReseauGraphique(Reseau):
 
 
 def main():
-    reseau = Reseau()
-    noeud_depart = 0
-    connexe = reseau.parcours_largeur(noeud_depart)
+    reseau = Reseau() # Création d'une instance Reseau qui contiendra touts les noeuds et la table de routage càd notre graphe
+    noeud_depart = 0 # Premier noeud est le n°0
+    connexe = reseau.parcours_largeur(noeud_depart) # On vérifie la connexité depuis le sommet de départ 
 
-    print()
-    while not connexe:
+    print() # Tabulation
+    while not connexe: # Tant que le graphe n'est pas connexe, on en recréé un...
         print("Le réseau n'est pas connexe. Création d'un nouveau réseau...")
         reseau = Reseau()
         connexe = reseau.parcours_largeur(noeud_depart)
     
-    print("Le reseaux est connexe, on peut l'afficher: ")
-    print()  
-    reseau_graphique = ReseauGraphique()
-    reseau_graphique.afficher()
+    print("Le reseaux est connexe, on peut l'afficher: ") # Le test de connexité est passé, on peut afficher le graphe
+    print()
+    reseau_graphique = ReseauGraphique() # Création de l'interface graphique de notre graphe
+    reseau_graphique.afficher() # Affichage du graphe
 
-    while True:
-        source_noeud, destination_noeud = reseau_graphique.selectionner_noeuds()
-        chemin = reseau_graphique.reconstruire_chemin(source_noeud, destination_noeud)
+    while True: # Tant que l'utilisateur le souhaite, il peut regarder le chemin entre 2 noeuds
+        source_noeud, destination_noeud = reseau_graphique.selectionner_noeuds() # On sélectionne 2 noeuds 
+        chemin = reseau_graphique.reconstruire_chemin(source_noeud, destination_noeud) # On construit le chemin
         print(f"Chemin de {source_noeud} à {destination_noeud} : {' -> '.join(map(str, chemin))}")
-        reseau_graphique.afficher(chemin)
+        reseau_graphique.afficher(chemin) # On affiche le graphe avec le chemin surligné en rouge
         print()
         v = str(input("Voulez-vous observer le chemin entre 2 autres noeuds? (oui/non) "))
         print()
