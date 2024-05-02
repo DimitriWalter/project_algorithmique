@@ -160,7 +160,7 @@ class ReseauGraphique(Reseau):
 
         if chemin: # Si il y a un chemin à afficher
             liens = [(chemin[i], chemin[i+1]) for i in range(len(chemin)-1)] # Création de la liste de chaque tuples de noeuds liés
-            epaisseur_chemin = 5
+            epaisseur_chemin = 3
             nx.draw_networkx_edges(G, pos=positions, edgelist=liens, edge_color="yellow", width=epaisseur_chemin) # Dessin du chemin séléctionné en rouge
 
         plt.legend([plt.Line2D([0], [0], color="blue", lw=4), plt.Line2D([0], [0], color="red", lw=4), plt.Line2D([0], [0], color="green", lw=4)],
@@ -233,11 +233,11 @@ def main():
         source_noeud, destination_noeud = reseau_graphique.selectionner_noeuds() # On sélectionne 2 noeuds 
         chemin = reseau_graphique.reconstruire_chemin(source_noeud, destination_noeud) # On construit le chemin
         print(f"Chemin de {source_noeud} à {destination_noeud} : {' -> '.join(map(str, chemin))}")
+        print()
         reseau_graphique.afficher(chemin) # On affiche le graphe avec le chemin surligné en rouge
+        reponse = str(input("Voulez-vous observer le chemin entre 2 autres noeuds? (oui/non) "))
         print()
-        v = str(input("Voulez-vous observer le chemin entre 2 autres noeuds? (oui/non) "))
-        print()
-        if v == "oui":
+        if reponse == "oui":
             continue
         else:
             break
